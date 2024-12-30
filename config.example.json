@@ -1,0 +1,8 @@
+{
+  "hostname": "box.example.com",
+  "domain": "mydomain.example.com",
+  "email": "john.doe@example.com",
+  "password": "password123",
+  "secret": "amFuIFBpbg==",
+  "cooldown": "5m"
+}
