@@ -1,6 +1,14 @@
-use std::{env, fs::File, sync::Arc, thread, time::Duration};
+use std::{
+    env,
+    fs::File,
+    path::{Path, PathBuf},
+    sync::Arc,
+    thread,
+    time::Duration,
+};
 
 use anyhow::{Result, anyhow};
+use argh::FromArgs;
 use base64::prelude::*;
 use log::{LevelFilter, error, info};
 use serde::Deserialize;
@@ -16,6 +24,8 @@ fn main() -> Result<()> {
         .filter(Some(module_path!()), LevelFilter::Info)
         .init();
 
+    let Args { config } = argh::from_env();
+
     let Config {
         hostname,
         domain,
@@ -23,7 +33,7 @@ fn main() -> Result<()> {
         password,
         secret,
         cooldown,
-    } = serde_json::from_reader(File::open("config.json")?)?;
+    } = serde_json::from_reader(File::open(config)?)?;
 
     let user_agent = Arc::new(format!(
         "{}/{}",
@@ -115,6 +125,18 @@ fn main() -> Result<()> {
 
         thread::sleep(cooldown);
     }
+}
+
+/// Dynamic DNS client for Mail-in-a-Box.
+#[derive(FromArgs)]
+struct Args {
+    /// path to the config file
+    #[argh(
+        option,
+        short = 'c',
+        default = r#"Path::new("config.json").into()"#
+    )]
+    config: PathBuf,
 }
 
 #[derive(Deserialize)]
